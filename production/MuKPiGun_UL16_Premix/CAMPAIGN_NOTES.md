@@ -302,3 +302,15 @@
   (contents travel in job logs; transferLogs=True), plus PoolOutputModule
   declarations in the stub crab_pset.py per species so CRAB classifies the
   ALCARECO output as EDM. Round labels bump per retry round at submit time.
+- Smoke r1 published nothing (2026-10-31): every PostJob logged "Disabling
+  publication of output file <species>_ALCARECO_N.root, because it is not of
+  EDM type" and the dataset names carried an all-zero PSet hash. Cause:
+  run_chain.sh rewrote the framework-report PFN WORK_DIR -> INITIAL_DIR, i.e.
+  file:/srv/<species>_ALCARECO.root, while CRAB matches by the bare name
+  (PostJob: pfn in tm_edm_outfiles; CMSRunAnalysis hashes the PSet only for a
+  pfn matching ^[A-Za-z0-9\-._]+$). Fix: strip the WORK_DIR prefix entirely,
+  plus an in-job guard that fails the job on any non-bare output PFN and a
+  bare-PFN proof in tests/test_workflow.sh. run_chain.sh is not in the payload,
+  so REF is unchanged. Smoke label bumped to r2. Everything else in r1 passed:
+  one lumi per file == global job ID, seeds bit-reproduced locally for MuGun
+  2001/2002, gun-pT overlap across species at chance level.
