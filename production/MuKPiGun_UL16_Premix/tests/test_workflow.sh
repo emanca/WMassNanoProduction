@@ -165,4 +165,33 @@ high = json.load(open("seeds_high.json"))
 assert high, "high-ID species-lane seed map must be non-empty"
 print("high-ID seed proof OK (job 20000 / KGun within MAX_SEED)")
 PYEOF
+
+# Bare-PFN proof: CRAB publishes an output only if its framework-report PFN is a
+# bare filename (smoke r1 published nothing because run_chain.sh wrote
+# file:/srv/<species>_ALCARECO.root). Run the exact rewrite + guard block of
+# run_chain.sh on a synthetic report, then check the guard rejects an absolute PFN.
+FJR_BLOCK="$(sed -n '/python "\$PAYLOAD_DIR\/runtime\/rewrite_fjr_paths.py"/,/^FJREOF$/p' "$CAMPAIGN_DIR/run_chain.sh")"
+[[ -n "$FJR_BLOCK" ]] || { echo "rewrite block not found in run_chain.sh"; exit 1; }
+fjr_probe() {
+    local WORK_DIR="$1" PAYLOAD_DIR="$CAMPAIGN_DIR"
+    python() { python3 "$@"; }
+    die() { echo "$*" >&2; return 1; }
+    eval "$FJR_BLOCK"
+}
+FJR_WORK="$TMPDIR_TEST/.chain_MuGun_2001_probe"
+mkdir -p "$FJR_WORK"
+cat > "$FJR_WORK/FrameworkJobReport.xml" <<EOF
+<FrameworkJobReport>
+<InputFile><PFN>file:step4_RECO.root</PFN></InputFile>
+<File><PFN>file:$FJR_WORK/MuGun_ALCARECO.root</PFN><OutputModuleClass>PoolOutputModule</OutputModuleClass></File>
+</FrameworkJobReport>
+EOF
+fjr_probe "$FJR_WORK"
+grep -qxF '<File><PFN>file:MuGun_ALCARECO.root</PFN><OutputModuleClass>PoolOutputModule</OutputModuleClass></File>' \
+    "$FJR_WORK/FrameworkJobReport.xml" || { echo "rewritten PFN is not bare"; exit 1; }
+cat > "$FJR_WORK/FrameworkJobReport.xml" <<EOF
+<FrameworkJobReport><File><PFN>file:/srv/$FJR_WORK/MuGun_ALCARECO.root</PFN></File></FrameworkJobReport>
+EOF
+if fjr_probe "$FJR_WORK" 2>/dev/null; then echo "guard accepted an absolute PFN"; exit 1; fi
+echo "framework report bare-PFN rewrite OK"
 echo "ALL CHECKS OK"
