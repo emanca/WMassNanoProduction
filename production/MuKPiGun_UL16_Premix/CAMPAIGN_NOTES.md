@@ -252,7 +252,7 @@
   10M events per task = 4,000 jobs x 2,500 events/job (~1.5-3.5 h/job),
   8 cores/16 GB, T3_US_MIT, DAS publication phys03 ON (user decision
   2026-10-30). crab_production_guns.py is the factory; block uniqueness of
-  seeds flows from scriptArg jobOffset = block x EVENTS_PER_TASK (the
+  seeds flows from scriptArg jobOffset = block x JOBS_PER_TASK (the
   deterministic seeding keys on CHAIN_JOB_ID). TOTAL ~3.05 TB ALCARECO at
   20.7 kB/ev measured at v4_pilot; premix xrootd transit 45-90 TB - the
   largest quantifier of the campaign listed in writing here.
@@ -261,7 +261,7 @@
 - Block granularity retuned after opening discussion (2026-10-30): 10 blocks
   per species of 5M events each (2,000 jobs x 2,500 ev/job) = 30 tasks total,
   instead of 5 blocks x 10M. Same totals, same seed-offset discipline
-  (jobOffset = block x EVENTS_PER_TASK), better failure-cell containment and
+  (jobOffset = block x JOBS_PER_TASK), better failure-cell containment and
   ASO transfer smoothing. CRAB 10k-job cap stays far off either way.
 
 ## pre-salvo fixes riding PR #39 (pmlugato review 2026-10-30, accepted)

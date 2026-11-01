@@ -19,7 +19,7 @@ STAGE_OFFSETS = {
 # 981/998 jobs where not separated). The API is additive on top of the job
 # axis: slot = (job_id - 1) + (species_index - 1) * SPECIES_STRIDE. With
 # the 30-block layout (max slot ~60k), MAX_SEED stays far away; species
-# count up to 3 keeps slots < 500k.
+# count up to 3 keeps slots < 520k (max slot 519,999 = 19,999 + 2 x 250,000).
 
 
 def _seed_values(service, job_id, stage, species_index=1):

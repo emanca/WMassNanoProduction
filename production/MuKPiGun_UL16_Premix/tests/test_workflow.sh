@@ -155,15 +155,18 @@ mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 with open(os.path.join(os.environ["CHAIN_SEED_REPORT"])) as handle:
     report = json.load(handle)
-with open("seeds_high.json", "w") as out:
+with open("seeds_%s_%s_flat.json" % (os.environ["CHAIN_SPECIES"], os.environ["CHAIN_JOB_ID"]), "w") as out:
     json.dump(report["after"], out)
 PYEOF
 done
 python3 - <<'PYEOF'
 import json
-high = json.load(open("seeds_high.json"))
-assert high, "high-ID species-lane seed map must be non-empty"
-print("high-ID seed proof OK (job 20000 / KGun within MAX_SEED)")
+import os
+for name in (f"seeds_PiGun_2001_flat.json", "seeds_KGun_20000_flat.json"):
+    assert os.path.exists(name), "expected seed dump missing: " + name
+    data = json.load(open(name))
+    assert data, "probe seed map must be non-empty: " + name
+print("high-ID seed proofs OK (job 2001 / PiGun and job 20000 / KGun within MAX_SEED)")
 PYEOF
 
 # Bare-PFN proof: CRAB publishes an output only if its framework-report PFN is a
